@@ -81,6 +81,15 @@
       box-sizing: border-box;
     }
 
+    .date-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .date-row input {
+      flex: 1;
+    }
+
     .tool button {
       margin-top: 18px;
       background: var(--primary);
@@ -168,11 +177,20 @@
   <!-- 30-Day Month Date Difference -->
   <div id="dayTool" class="tool">
     <h2>30-Day Month Date Difference</h2>
-    <label for="startDate">Start Date:</label>
-    <input type="date" id="startDate">
 
-    <label for="endDate">End Date:</label>
-    <input type="date" id="endDate">
+    <label>Start Date (DD/MM/YYYY):</label>
+    <div class="date-row">
+      <input type="number" id="startDay" placeholder="DD" min="1" max="31">
+      <input type="number" id="startMonth" placeholder="MM" min="1" max="12">
+      <input type="number" id="startYear" placeholder="YYYY" min="1">
+    </div>
+
+    <label>End Date (DD/MM/YYYY):</label>
+    <div class="date-row">
+      <input type="number" id="endDay" placeholder="DD" min="1" max="31">
+      <input type="number" id="endMonth" placeholder="MM" min="1" max="12">
+      <input type="number" id="endYear" placeholder="YYYY" min="1">
+    </div>
 
     <button onclick="calculate30DayDiff()">Calculate Days</button>
     <div class="result" id="dayResult"></div>
@@ -206,17 +224,20 @@
     }
 
     function calculate30DayDiff() {
-      let start = new Date(document.getElementById("startDate").value);
-      let end = new Date(document.getElementById("endDate").value);
+      let d1 = parseInt(document.getElementById("startDay").value);
+      let m1 = parseInt(document.getElementById("startMonth").value);
+      let y1 = parseInt(document.getElementById("startYear").value);
 
-      if (isNaN(start) || isNaN(end)) {
-        document.getElementById("dayResult").innerText = "⚠️ Please select both dates.";
+      let d2 = parseInt(document.getElementById("endDay").value);
+      let m2 = parseInt(document.getElementById("endMonth").value);
+      let y2 = parseInt(document.getElementById("endYear").value);
+
+      if ([d1,m1,y1,d2,m2,y2].some(isNaN)) {
+        document.getElementById("dayResult").innerText = "⚠️ Please enter valid start & end dates.";
         return;
       }
 
-      let y1 = start.getFullYear(), m1 = start.getMonth() + 1, d1 = start.getDate();
-      let y2 = end.getFullYear(), m2 = end.getMonth() + 1, d2 = end.getDate();
-
+      // Adjust for 30-day convention
       if (d1 === 31) d1 = 30;
       if (d2 === 31 && d1 === 30) d2 = 30;
 
