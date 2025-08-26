@@ -53,7 +53,7 @@
       margin: 22px auto;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 520px;
+      max-width: 600px;
       width: 90%;
       display: none;
     }
@@ -113,6 +113,26 @@
       word-wrap: break-word;
     }
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f0f0f0;
+    }
+
+    .download-btn {
+      margin-top: 15px;
+      background: green !important;
+    }
+
     /* Mobile zoom adjustments */
     @media (max-width: 480px) {
       body {
@@ -139,6 +159,9 @@
       .result {
         font-size: 1.25rem;
       }
+      table {
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
@@ -147,6 +170,7 @@
   <header>
     <button onclick="showTool('compoundTool')">Compound Interest</button>
     <button onclick="showTool('dayTool')">30-Day Difference</button>
+    <button onclick="showTool('emiTool')">EMI Calculator</button>
   </header>
 
   <!-- Compound Interest Calculator -->
@@ -196,6 +220,24 @@
     <div class="result" id="dayResult"></div>
   </div>
 
+  <!-- EMI Calculator -->
+  <div id="emiTool" class="tool">
+    <h2>EMI Calculator</h2>
+    <label for="loanAmount">Loan Amount (₹):</label>
+    <input type="number" id="loanAmount" placeholder="Enter loan amount">
+
+    <label for="loanRate">Annual Interest Rate (%):</label>
+    <input type="number" id="loanRate" placeholder="Enter interest rate">
+
+    <label for="loanTenure">Tenure (months):</label>
+    <input type="number" id="loanTenure" placeholder="Enter number of months">
+
+    <button onclick="calculateEMI()">Calculate EMI</button>
+    <div class="result" id="emiResult"></div>
+    <div id="emiTable"></div>
+    <button id="downloadCSV" class="download-btn" style="display:none;" onclick="downloadCSV()">⬇ Download CSV</button>
+  </div>
+
   <script>
     function showTool(toolId) {
       document.querySelectorAll('.tool').forEach(tool => {
@@ -237,13 +279,82 @@
         return;
       }
 
-      // Adjust for 30-day convention
       if (d1 === 31) d1 = 30;
       if (d2 === 31 && d1 === 30) d2 = 30;
 
       let totalDays = (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
 
       document.getElementById("dayResult").innerText = `📅 Total Days (30-day months): ${totalDays}`;
+    }
+
+    let emiData = [];
+
+    function calculateEMI() {
+      let P = parseFloat(document.getElementById("loanAmount").value);
+      let annualRate = parseFloat(document.getElementById("loanRate").value);
+      let n = parseInt(document.getElementById("loanTenure").value);
+
+      if (isNaN(P) || isNaN(annualRate) || isNaN(n)) {
+        document.getElementById("emiResult").innerText = "⚠️ Please fill all fields correctly.";
+        return;
+      }
+
+      let r = (annualRate/100)/12; // monthly interest rate
+      let emi = (P*r*Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+
+      document.getElementById("emiResult").innerText = 
+        `Monthly EMI: ₹${emi.toFixed(2)} (for ${n} months)`;
+
+      // Build amortization table + CSV data
+      let balance = P;
+      emiData = [["Month","EMI","Interest","Principal","Balance"]];
+      let tableHTML = `
+        <table>
+          <tr>
+            <th>Month</th>
+            <th>EMI (₹)</th>
+            <th>Interest (₹)</th>
+            <th>Principal (₹)</th>
+            <th>Balance (₹)</th>
+          </tr>
+      `;
+
+      for (let i=1; i<=n; i++) {
+        let interest = balance * r;
+        let principal = emi - interest;
+        balance -= principal;
+        if (balance < 0) balance = 0;
+
+        tableHTML += `
+          <tr>
+            <td>${i}</td>
+            <td>${emi.toFixed(2)}</td>
+            <td>${interest.toFixed(2)}</td>
+            <td>${principal.toFixed(2)}</td>
+            <td>${balance.toFixed(2)}</td>
+          </tr>
+        `;
+
+        emiData.push([i, emi.toFixed(2), interest.toFixed(2), principal.toFixed(2), balance.toFixed(2)]);
+      }
+
+      tableHTML += `</table>`;
+      document.getElementById("emiTable").innerHTML = tableHTML;
+
+      // Show download button
+      document.getElementById("downloadCSV").style.display = "block";
+    }
+
+    function downloadCSV() {
+      let csvContent = emiData.map(e => e.join(",")).join("\n");
+      let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      let url = URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "EMI_Schedule.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     showTool('compoundTool');
