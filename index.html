@@ -22,16 +22,16 @@
 
     header {
       background: var(--primary);
-      padding: 10px;
+      padding: 12px;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
     }
 
     header button {
-      padding: 12px 20px;
-      font-size: 15px;
+      padding: 14px 20px;
+      font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -49,40 +49,40 @@
 
     .tool {
       background: var(--light);
-      padding: 20px;
-      margin: 20px auto;
+      padding: 24px;
+      margin: 22px auto;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 500px;
+      max-width: 520px;
       width: 90%;
       display: none;
     }
 
     h2 {
       margin-top: 0;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       text-align: center;
     }
 
     label {
       display: block;
-      margin-top: 12px;
+      margin-top: 14px;
       font-weight: bold;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     input, select, button {
-      margin-top: 6px;
-      padding: 12px;
+      margin-top: 7px;
+      padding: 14px;
       width: 100%;
-      font-size: 1rem;
+      font-size: 1.05rem;
       border: 1px solid #ccc;
       border-radius: 6px;
       box-sizing: border-box;
     }
 
     .tool button {
-      margin-top: 16px;
+      margin-top: 18px;
       background: var(--primary);
       color: var(--light);
       font-weight: bold;
@@ -96,24 +96,39 @@
     }
 
     .result {
-      margin-top: 15px;
+      margin-top: 18px;
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 1.1rem;
       text-align: center;
       color: #222;
       word-wrap: break-word;
     }
 
-    /* Responsive adjustments */
+    /* Mobile zoom adjustments */
     @media (max-width: 480px) {
+      body {
+        font-size: 1.1rem;
+      }
       header {
         flex-direction: column;
       }
       header button {
         max-width: none;
+        font-size: 18px;
+        padding: 16px;
       }
       .tool {
-        padding: 15px;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      input, select, button {
+        font-size: 1.2rem;
+        padding: 16px;
+      }
+      .result {
+        font-size: 1.25rem;
       }
     }
   </style>
@@ -164,7 +179,6 @@
   </div>
 
   <script>
-    // Show one tool at a time
     function showTool(toolId) {
       document.querySelectorAll('.tool').forEach(tool => {
         tool.style.display = "none";
@@ -173,7 +187,6 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Compound Interest Calculator
     function calculateCompound() {
       let P = parseFloat(document.getElementById("principal").value);
       let r = parseFloat(document.getElementById("rate").value) / 100;
@@ -192,7 +205,6 @@
         `Future Value: ₹${A.toFixed(2)}\nInterest Earned: ₹${interest.toFixed(2)}`;
     }
 
-    // 30-Day Month Date Difference
     function calculate30DayDiff() {
       let start = new Date(document.getElementById("startDate").value);
       let end = new Date(document.getElementById("endDate").value);
@@ -213,7 +225,6 @@
       document.getElementById("dayResult").innerText = `📅 Total Days (30-day months): ${totalDays}`;
     }
 
-    // Default: show first tool
     showTool('compoundTool');
   </script>
 
