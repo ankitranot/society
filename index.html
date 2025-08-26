@@ -2,65 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Finance Tools</title>
   <style>
+    :root {
+      --primary: #0077cc;
+      --primary-dark: #005fa3;
+      --light: #fff;
+      --bg: #f4f4f4;
+      --text: #333;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: #f4f4f4;
+      background: var(--bg);
+      color: var(--text);
     }
+
     header {
-      background: #0077cc;
-      padding: 15px;
-      text-align: center;
+      background: var(--primary);
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
+
     header button {
-      margin: 20px 10px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 12px 20px;
+      font-size: 15px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
-      background: #fff;
-      color: #0077cc;
+      background: var(--light);
+      color: var(--primary);
       font-weight: bold;
+      transition: background 0.2s;
+      flex: 1 1 auto;
+      max-width: 180px;
     }
+
     header button:hover {
       background: #e6e6e6;
     }
+
     .tool {
-      background: #fff;
+      background: var(--light);
       padding: 20px;
-      margin: 30px auto;
-      border-radius: 8px;
+      margin: 20px auto;
+      border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 450px;
-      display: none; /* hidden by default */
+      max-width: 500px;
+      width: 90%;
+      display: none;
     }
+
     h2 {
-      color: #333;
       margin-top: 0;
+      font-size: 1.3rem;
+      text-align: center;
     }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
     input, select, button {
-      margin: 5px 0;
-      padding: 8px;
+      margin-top: 6px;
+      padding: 12px;
       width: 100%;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
       box-sizing: border-box;
     }
+
     .tool button {
-      background: #0077cc;
-      color: #fff;
+      margin-top: 16px;
+      background: var(--primary);
+      color: var(--light);
+      font-weight: bold;
       border: none;
       cursor: pointer;
-      border-radius: 5px;
+      transition: background 0.2s;
     }
+
     .tool button:hover {
-      background: #005fa3;
+      background: var(--primary-dark);
     }
+
     .result {
-      margin-top: 10px;
+      margin-top: 15px;
       font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
       color: #222;
+      word-wrap: break-word;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+      }
+      header button {
+        max-width: none;
+      }
+      .tool {
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -68,22 +122,22 @@
 
   <header>
     <button onclick="showTool('compoundTool')">Compound Interest</button>
-    <button onclick="showTool('dayTool')">30-Day Month Difference</button>
+    <button onclick="showTool('dayTool')">30-Day Difference</button>
   </header>
 
   <!-- Compound Interest Calculator -->
   <div id="compoundTool" class="tool">
     <h2>Compound Interest Calculator</h2>
-    <label>Principal (₹):</label>
+    <label for="principal">Principal (₹):</label>
     <input type="number" id="principal" placeholder="Enter principal">
 
-    <label>Annual Interest Rate (%):</label>
+    <label for="rate">Annual Interest Rate (%):</label>
     <input type="number" id="rate" placeholder="Enter rate">
 
-    <label>Time (years):</label>
+    <label for="time">Time (years):</label>
     <input type="number" id="time" placeholder="Enter years">
 
-    <label>Compounding Frequency:</label>
+    <label for="compoundOption">Compounding Frequency:</label>
     <select id="compoundOption">
       <option value="1">Yearly</option>
       <option value="2">Half-Yearly</option>
@@ -99,10 +153,10 @@
   <!-- 30-Day Month Date Difference -->
   <div id="dayTool" class="tool">
     <h2>30-Day Month Date Difference</h2>
-    <label>Start Date:</label>
+    <label for="startDate">Start Date:</label>
     <input type="date" id="startDate">
 
-    <label>End Date:</label>
+    <label for="endDate">End Date:</label>
     <input type="date" id="endDate">
 
     <button onclick="calculate30DayDiff()">Calculate Days</button>
@@ -116,26 +170,27 @@
         tool.style.display = "none";
       });
       document.getElementById(toolId).style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // Compound Interest Calculator
-function calculateCompound() {
-  let P = parseFloat(document.getElementById("principal").value);
-  let r = parseFloat(document.getElementById("rate").value) / 100;
-  let t = parseFloat(document.getElementById("time").value);
-  let n = parseInt(document.getElementById("compoundOption").value);
+    function calculateCompound() {
+      let P = parseFloat(document.getElementById("principal").value);
+      let r = parseFloat(document.getElementById("rate").value) / 100;
+      let t = parseFloat(document.getElementById("time").value);
+      let n = parseInt(document.getElementById("compoundOption").value);
 
-  if (isNaN(P) || isNaN(r) || isNaN(t)) {
-    document.getElementById("compoundResult").innerText = "Please fill all fields correctly.";
-    return;
-  }
+      if (isNaN(P) || isNaN(r) || isNaN(t)) {
+        document.getElementById("compoundResult").innerText = "⚠️ Please fill all fields correctly.";
+        return;
+      }
 
-  let A = P * Math.pow((1 + r/n), n*t);
-  let interest = A - P;
+      let A = P * Math.pow((1 + r/n), n*t);
+      let interest = A - P;
 
-  document.getElementById("compoundResult").innerText = 
-    `Future Value: ₹${A.toFixed(2)} | Interest Earned: ₹${interest.toFixed(2)}`;
-}
+      document.getElementById("compoundResult").innerText = 
+        `Future Value: ₹${A.toFixed(2)}\nInterest Earned: ₹${interest.toFixed(2)}`;
+    }
 
     // 30-Day Month Date Difference
     function calculate30DayDiff() {
@@ -143,20 +198,19 @@ function calculateCompound() {
       let end = new Date(document.getElementById("endDate").value);
 
       if (isNaN(start) || isNaN(end)) {
-        document.getElementById("dayResult").innerText = "Please select both dates.";
+        document.getElementById("dayResult").innerText = "⚠️ Please select both dates.";
         return;
       }
 
       let y1 = start.getFullYear(), m1 = start.getMonth() + 1, d1 = start.getDate();
       let y2 = end.getFullYear(), m2 = end.getMonth() + 1, d2 = end.getDate();
 
-      // Adjust for 30-day convention
       if (d1 === 31) d1 = 30;
       if (d2 === 31 && d1 === 30) d2 = 30;
 
       let totalDays = (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
 
-      document.getElementById("dayResult").innerText = `Total Days (30-day months): ${totalDays}`;
+      document.getElementById("dayResult").innerText = `📅 Total Days (30-day months): ${totalDays}`;
     }
 
     // Default: show first tool
