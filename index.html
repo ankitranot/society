@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Finance Tools</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary: #0077cc;
@@ -12,359 +13,196 @@
       --bg: #f4f4f4;
       --text: #333;
     }
-
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    header {
-      background: var(--primary);
-      padding: 12px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    header button {
-      padding: 14px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: var(--light);
-      color: var(--primary);
-      font-weight: bold;
-      transition: background 0.2s;
-      flex: 1 1 auto;
-      max-width: 180px;
-    }
-
-    header button:hover {
-      background: #e6e6e6;
-    }
-
-    .tool {
-      background: var(--light);
-      padding: 24px;
-      margin: 22px auto;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 90%;
-      display: none;
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 1.4rem;
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-
-    input, select, button {
-      margin-top: 7px;
-      padding: 14px;
-      width: 100%;
-      font-size: 1.05rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-
-    .date-row {
-      display: flex;
-      gap: 6px;
-    }
-
-    .date-row input {
-      flex: 1;
-    }
-
-    .tool button {
-      margin-top: 18px;
-      background: var(--primary);
-      color: var(--light);
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .tool button:hover {
-      background: var(--primary-dark);
-    }
-
-    .result {
-      margin-top: 18px;
-      font-weight: bold;
-      font-size: 1.1rem;
-      text-align: center;
-      color: #222;
-      word-wrap: break-word;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 18px;
-      font-size: 0.95rem;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #f0f0f0;
-    }
-
-    .download-btn {
-      margin-top: 15px;
-      background: green !important;
-    }
-
-    /* Mobile zoom adjustments */
-    @media (max-width: 480px) {
-      body {
-        font-size: 1.1rem;
-      }
-      header {
-        flex-direction: column;
-      }
-      header button {
-        max-width: none;
-        font-size: 18px;
-        padding: 16px;
-      }
-      .tool {
-        padding: 20px;
-      }
-      h2 {
-        font-size: 1.5rem;
-      }
-      input, select, button {
-        font-size: 1.2rem;
-        padding: 16px;
-      }
-      .result {
-        font-size: 1.25rem;
-      }
-      table {
-        font-size: 0.85rem;
-      }
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+    header { background: var(--primary); padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    header button { flex: 1 1 auto; max-width: 200px; padding: 12px; font-size: 15px; font-weight: bold; border: none; border-radius: 6px; background: var(--light); color: var(--primary); cursor: pointer; }
+    header button:hover { background: #eee; }
+    .tool { display: none; background: var(--light); padding: 20px; margin: 20px auto; max-width: 700px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    h2 { text-align: center; font-size: 1.4rem; margin-top: 0; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select, button { margin-top: 7px; padding: 12px; width: 100%; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .tool button { background: var(--primary); color: var(--light); font-weight: bold; cursor: pointer; margin-top: 15px; }
+  
+    .result { margin-top: 15px; font-weight: bold; font-size: 1.1rem; text-align: center; color: #222; white-space: pre-line; }
+    .sub-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .sub-tabs button { flex:1; background:#eee; color:#333; border:none; padding:10px; font-weight:bold; cursor:pointer; border-radius:5px; }
+    .sub-tabs button.active { background: var(--primary); color: var(--light); }
+    canvas { margin-top: 20px; }
   </style>
 </head>
 <body>
 
-  <header>
-    <button onclick="showTool('compoundTool')">Compound Interest</button>
-    <button onclick="showTool('dayTool')">30-Day Difference</button>
-    <button onclick="showTool('emiTool')">EMI Calculator</button>
-  </header>
+<header>
+  <button onclick="showTool('compoundTool')">Compound Interest</button>
+  <button onclick="showTool('dayTool')">30-Day Diff</button>
+  <button onclick="showTool('emiTool')">EMI</button>
+  <button onclick="showTool('mutualTool')">Mutual Fund</button>
+</header>
 
-  <!-- Compound Interest Calculator -->
-  <div id="compoundTool" class="tool">
-    <h2>Compound Interest Calculator</h2>
-    <label for="principal">Principal (₹):</label>
-    <input type="number" id="principal" placeholder="Enter principal">
+<!-- Compound Interest Calculator -->
+<div id="compoundTool" class="tool">
+  <h2>Compound Interest Calculator</h2>
+  <label>Principal (₹):</label><input type="number" id="principal">
+  <label>Annual Interest Rate (%):</label><input type="number" id="rate">
+  <label>Time (years):</label><input type="number" id="time">
+  <label>Compounding Frequency:</label>
+  <select id="compoundOption">
+    <option value="1">Yearly</option><option value="2">Half-Yearly</option>
+    <option value="4">Quarterly</option><option value="12">Monthly</option>
+    <option value="365">Daily</option>
+  </select>
+  <button onclick="calculateCompound()">Calculate</button>
+  <div class="result" id="compoundResult"></div>
+</div>
 
-    <label for="rate">Annual Interest Rate (%):</label>
-    <input type="number" id="rate" placeholder="Enter rate">
+<!-- 30-Day Month Date Difference -->
+<div id="dayTool" class="tool">
+  <h2>30-Day Month Date Difference</h2>
+  <label>Start Date (DD/MM/YYYY):</label>
+  <div style="display:flex; gap:5px;">
+    <input type="number" id="startDay" placeholder="DD"><input type="number" id="startMonth" placeholder="MM"><input type="number" id="startYear" placeholder="YYYY">
+  </div>
+  <label>End Date (DD/MM/YYYY):</label>
+  <div style="display:flex; gap:5px;">
+    <input type="number" id="endDay" placeholder="DD"><input type="number" id="endMonth" placeholder="MM"><input type="number" id="endYear" placeholder="YYYY">
+  </div>
+  <button onclick="calculate30DayDiff()">Calculate Days</button>
+  <div class="result" id="dayResult"></div>
+</div>
 
-    <label for="time">Time (years):</label>
-    <input type="number" id="time" placeholder="Enter years">
+<!-- EMI Calculator -->
+<div id="emiTool" class="tool">
+  <h2>EMI Calculator</h2>
+  <label>Loan Amount (₹):</label><input type="number" id="loanAmount">
+  <label>Annual Interest Rate (%):</label><input type="number" id="loanRate">
+  <label>Tenure (months):</label><input type="number" id="loanTenure">
+  <button onclick="calculateEMI()">Calculate EMI</button>
+  <div class="result" id="emiResult"></div>
+</div>
 
-    <label for="compoundOption">Compounding Frequency:</label>
-    <select id="compoundOption">
-      <option value="1">Yearly</option>
-      <option value="2">Half-Yearly</option>
-      <option value="4">Quarterly</option>
-      <option value="12">Monthly</option>
-      <option value="365">Daily</option>
-    </select>
-
-    <button onclick="calculateCompound()">Calculate</button>
-    <div class="result" id="compoundResult"></div>
+<!-- Mutual Fund Calculator (SIP + Lumpsum) -->
+<div id="mutualTool" class="tool">
+  <h2>Mutual Fund Calculator</h2>
+  <div class="sub-tabs">
+    <button id="sipTab" class="active" onclick="showSubTool('sipCalc')">SIP</button>
+    <button id="lumpTab" onclick="showSubTool('lumpCalc')">Lumpsum</button>
   </div>
 
-  <!-- 30-Day Month Date Difference -->
-  <div id="dayTool" class="tool">
-    <h2>30-Day Month Date Difference</h2>
-
-    <label>Start Date (DD/MM/YYYY):</label>
-    <div class="date-row">
-      <input type="number" id="startDay" placeholder="DD" min="1" max="31">
-      <input type="number" id="startMonth" placeholder="MM" min="1" max="12">
-      <input type="number" id="startYear" placeholder="YYYY" min="1">
-    </div>
-
-    <label>End Date (DD/MM/YYYY):</label>
-    <div class="date-row">
-      <input type="number" id="endDay" placeholder="DD" min="1" max="31">
-      <input type="number" id="endMonth" placeholder="MM" min="1" max="12">
-      <input type="number" id="endYear" placeholder="YYYY" min="1">
-    </div>
-
-    <button onclick="calculate30DayDiff()">Calculate Days</button>
-    <div class="result" id="dayResult"></div>
+  <!-- SIP Section -->
+  <div id="sipCalc" class="sub-tool">
+    <label>Monthly Investment (₹):</label><input type="number" id="sipAmount">
+    <label>Expected Annual Return (%):</label><input type="number" id="sipRate">
+    <label>Time Period (years):</label><input type="number" id="sipYears">
+    <button onclick="calculateSIP()">Calculate SIP</button>
+    <div class="result" id="sipResult"></div>
+    <canvas id="sipChart"></canvas>
   </div>
 
-  <!-- EMI Calculator -->
-  <div id="emiTool" class="tool">
-    <h2>EMI Calculator</h2>
-    <label for="loanAmount">Loan Amount (₹):</label>
-    <input type="number" id="loanAmount" placeholder="Enter loan amount">
-
-    <label for="loanRate">Annual Interest Rate (%):</label>
-    <input type="number" id="loanRate" placeholder="Enter interest rate">
-
-    <label for="loanTenure">Tenure (months):</label>
-    <input type="number" id="loanTenure" placeholder="Enter number of months">
-
-    <button onclick="calculateEMI()">Calculate EMI</button>
-    <div class="result" id="emiResult"></div>
-    <div id="emiTable"></div>
-    <button id="downloadCSV" class="download-btn" style="display:none;" onclick="downloadCSV()">⬇ Download CSV</button>
+  <!-- Lumpsum Section -->
+  <div id="lumpCalc" class="sub-tool" style="display:none;">
+    <label>Investment Amount (₹):</label><input type="number" id="lumpAmount">
+    <label>Expected Annual Return (%):</label><input type="number" id="lumpRate">
+    <label>Time Period (years):</label><input type="number" id="lumpYears">
+    <button onclick="calculateLumpsum()">Calculate Lumpsum</button>
+    <div class="result" id="lumpsumResult"></div>
+    <canvas id="lumpChart"></canvas>
   </div>
+</div>
 
-  <script>
-    function showTool(toolId) {
-      document.querySelectorAll('.tool').forEach(tool => {
-        tool.style.display = "none";
-      });
-      document.getElementById(toolId).style.display = "block";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+<script>
+let sipChartInstance=null, lumpChartInstance=null;
 
-    function calculateCompound() {
-      let P = parseFloat(document.getElementById("principal").value);
-      let r = parseFloat(document.getElementById("rate").value) / 100;
-      let t = parseFloat(document.getElementById("time").value);
-      let n = parseInt(document.getElementById("compoundOption").value);
+function showTool(toolId) {
+  document.querySelectorAll('.tool').forEach(t => t.style.display="none");
+  document.getElementById(toolId).style.display="block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-      if (isNaN(P) || isNaN(r) || isNaN(t)) {
-        document.getElementById("compoundResult").innerText = "⚠️ Please fill all fields correctly.";
-        return;
-      }
+function showSubTool(id) {
+  document.querySelectorAll('.sub-tool').forEach(t=>t.style.display="none");
+  document.getElementById(id).style.display="block";
+  document.getElementById("sipTab").classList.remove("active");
+  document.getElementById("lumpTab").classList.remove("active");
+  if(id==="sipCalc") document.getElementById("sipTab").classList.add("active");
+  else document.getElementById("lumpTab").classList.add("active");
+}
 
-      let A = P * Math.pow((1 + r/n), n*t);
-      let interest = A - P;
+function calculateCompound() {
+  let P=+document.getElementById("principal").value,r=+document.getElementById("rate").value/100,t=+document.getElementById("time").value,n=+document.getElementById("compoundOption").value;
+  if (!P||!r||!t) return document.getElementById("compoundResult").innerText="⚠️ Fill all fields!";
+  let A=P*Math.pow((1+r/n),n*t), interest=A-P;
+  document.getElementById("compoundResult").innerText=`Future Value: ₹${A.toFixed(2)}\nInterest Earned: ₹${interest.toFixed(2)}`;
+}
 
-      document.getElementById("compoundResult").innerText = 
-        `Future Value: ₹${A.toFixed(2)}\nInterest Earned: ₹${interest.toFixed(2)}`;
-    }
+function calculate30DayDiff() {
+  let d1=+document.getElementById("startDay").value,m1=+document.getElementById("startMonth").value,y1=+document.getElementById("startYear").value;
+  let d2=+document.getElementById("endDay").value,m2=+document.getElementById("endMonth").value,y2=+document.getElementById("endYear").value;
+  if ([d1,m1,y1,d2,m2,y2].some(isNaN)) return document.getElementById("dayResult").innerText="⚠️ Enter valid dates!";
+  if (d1===31) d1=30; if (d2===31 && d1===30) d2=30;
+  let totalDays=(y2-y1)*360+(m2-m1)*30+(d2-d1)-1;
+  if (totalDays<0) return document.getElementById("dayResult").innerText="⚠️ End date must be after start date.";
+  document.getElementById("dayResult").innerText=`📅 Total Days (30-day months, excl. end): ${totalDays}`;
+}
 
-    function calculate30DayDiff() {
-      let d1 = parseInt(document.getElementById("startDay").value);
-      let m1 = parseInt(document.getElementById("startMonth").value);
-      let y1 = parseInt(document.getElementById("startYear").value);
+function calculateEMI() {
+  let P=+document.getElementById("loanAmount").value,r=(+document.getElementById("loanRate").value/100)/12,n=+document.getElementById("loanTenure").value;
+  if (!P||!r||!n) return document.getElementById("emiResult").innerText="⚠️ Fill all fields!";
+  let emi=(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  document.getElementById("emiResult").innerText=`Monthly EMI: ₹${emi.toFixed(2)} for ${n} months`;
+}
 
-      let d2 = parseInt(document.getElementById("endDay").value);
-      let m2 = parseInt(document.getElementById("endMonth").value);
-      let y2 = parseInt(document.getElementById("endYear").value);
+function calculateSIP() {
+  let sip=+document.getElementById("sipAmount").value, rate=+document.getElementById("sipRate").value/100/12, years=+document.getElementById("sipYears").value;
+  let months=years*12;
+  if (!sip||!rate||!years) return document.getElementById("sipResult").innerText="⚠️ Fill all fields!";
+  let futureValue=sip*((Math.pow(1+rate,months)-1)/rate)*(1+rate);
+  let invested=sip*months, gain=futureValue-invested;
+  document.getElementById("sipResult").innerText=`Invested: ₹${invested.toFixed(2)}\nFuture Value: ₹${futureValue.toFixed(2)}\nWealth Gain: ₹${gain.toFixed(2)}`;
 
-      if ([d1,m1,y1,d2,m2,y2].some(isNaN)) {
-        document.getElementById("dayResult").innerText = "⚠️ Please enter valid start & end dates.";
-        return;
-      }
+  let labels=[], investedData=[], valueData=[];
+  for(let y=1;y<=years;y++){
+    let monthsSoFar=y*12;
+    let fv=sip*((Math.pow(1+rate,monthsSoFar)-1)/rate)*(1+rate);
+    labels.push("Year "+y);
+    investedData.push(sip*monthsSoFar);
+    valueData.push(fv);
+  }
+  if(sipChartInstance) sipChartInstance.destroy();
+  sipChartInstance=new Chart(document.getElementById("sipChart"),{
+    type:'line',
+    data:{ labels, datasets:[
+      {label:"Invested", data:investedData, borderColor:"#0077cc", backgroundColor:"rgba(0,119,204,0.2)", fill:true},
+      {label:"Value", data:valueData, borderColor:"#28a745", backgroundColor:"rgba(40,167,69,0.2)", fill:true}
+    ]},
+    options:{ responsive:true, plugins:{legend:{position:'top'}} }
+  });
+}
 
-      if (d1 === 31) d1 = 30;
-      if (d2 === 31 && d1 === 30) d2 = 30;
+function calculateLumpsum() {
+  let P=+document.getElementById("lumpAmount").value, rate=+document.getElementById("lumpRate").value/100, t=+document.getElementById("lumpYears").value;
+  if (!P||!rate||!t) return document.getElementById("lumpsumResult").innerText="⚠️ Fill all fields!";
+  let futureValue=P*Math.pow(1+rate,t), gain=futureValue-P;
+  document.getElementById("lumpsumResult").innerText=`Invested: ₹${P.toFixed(2)}\nFuture Value: ₹${futureValue.toFixed(2)}\nWealth Gain: ₹${gain.toFixed(2)}`;
 
-      // Exclusive of end date
-      let totalDays = (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+  let labels=[], investedData=[], valueData=[];
+  for(let y=1;y<=t;y++){
+    let fv=P*Math.pow(1+rate,y);
+    labels.push("Year "+y);
+    investedData.push(P);
+    valueData.push(fv);
+  }
+  if(lumpChartInstance) lumpChartInstance.destroy();
+  lumpChartInstance=new Chart(document.getElementById("lumpChart"),{
+    type:'line',
+    data:{ labels, datasets:[
+      {label:"Invested", data:investedData, borderColor:"#0077cc", backgroundColor:"rgba(0,119,204,0.2)", fill:true},
+      {label:"Value", data:valueData, borderColor:"#28a745", backgroundColor:"rgba(40,167,69,0.2)", fill:true}
+    ]},
+    options:{ responsive:true, plugins:{legend:{position:'top'}} }
+  });
+}
 
-      if (totalDays < 0) {
-        document.getElementById("dayResult").innerText = "⚠️ End date must be after start date.";
-        return;
-      }
-
-      document.getElementById("dayResult").innerText = `📅 Total Days (30-day months, excluding end date): ${totalDays}`;
-    }
-
-    let emiData = [];
-
-    function calculateEMI() {
-      let P = parseFloat(document.getElementById("loanAmount").value);
-      let annualRate = parseFloat(document.getElementById("loanRate").value);
-      let n = parseInt(document.getElementById("loanTenure").value);
-
-      if (isNaN(P) || isNaN(annualRate) || isNaN(n)) {
-        document.getElementById("emiResult").innerText = "⚠️ Please fill all fields correctly.";
-        return;
-      }
-
-      let r = (annualRate/100)/12; // monthly interest rate
-      let emi = (P*r*Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
-
-      document.getElementById("emiResult").innerText = 
-        `Monthly EMI: ₹${emi.toFixed(2)} (for ${n} months)`;
-
-      // Build amortization table + CSV data
-      let balance = P;
-      emiData = [["Month","EMI","Interest","Principal","Balance"]];
-      let tableHTML = `
-        <table>
-          <tr>
-            <th>Month</th>
-            <th>EMI (₹)</th>
-            <th>Interest (₹)</th>
-            <th>Principal (₹)</th>
-            <th>Balance (₹)</th>
-          </tr>
-      `;
-
-      for (let i=1; i<=n; i++) {
-        let interest = balance * r;
-        let principal = emi - interest;
-        balance -= principal;
-        if (balance < 0) balance = 0;
-
-        tableHTML += `
-          <tr>
-            <td>${i}</td>
-            <td>${emi.toFixed(2)}</td>
-            <td>${interest.toFixed(2)}</td>
-            <td>${principal.toFixed(2)}</td>
-            <td>${balance.toFixed(2)}</td>
-          </tr>
-        `;
-
-        emiData.push([i, emi.toFixed(2), interest.toFixed(2), principal.toFixed(2), balance.toFixed(2)]);
-      }
-
-      tableHTML += `</table>`;
-      document.getElementById("emiTable").innerHTML = tableHTML;
-
-      // Show download button
-      document.getElementById("downloadCSV").style.display = "block";
-    }
-
-    function downloadCSV() {
-      let csvContent = emiData.map(e => e.join(",")).join("\n");
-      let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      let url = URL.createObjectURL(blob);
-      let link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "EMI_Schedule.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    showTool('compoundTool');
-  </script>
-
+showTool('compoundTool');
+</script>
 </body>
 </html>
