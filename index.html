@@ -282,9 +282,15 @@
       if (d1 === 31) d1 = 30;
       if (d2 === 31 && d1 === 30) d2 = 30;
 
-      let totalDays = (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1;
+      // Exclusive of end date
+      let totalDays = (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
 
-      document.getElementById("dayResult").innerText = `📅 Total Days (30-day months): ${totalDays}`;
+      if (totalDays < 0) {
+        document.getElementById("dayResult").innerText = "⚠️ End date must be after start date.";
+        return;
+      }
+
+      document.getElementById("dayResult").innerText = `📅 Total Days (30-day months, excluding end date): ${totalDays}`;
     }
 
     let emiData = [];
