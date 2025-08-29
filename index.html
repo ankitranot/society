@@ -139,9 +139,9 @@ function calculate30DayDiff() {
   let d2=+document.getElementById("endDay").value,m2=+document.getElementById("endMonth").value,y2=+document.getElementById("endYear").value;
   if ([d1,m1,y1,d2,m2,y2].some(isNaN)) return document.getElementById("dayResult").innerText="⚠️ Enter valid dates!";
   if (d1===31) d1=30; if (d2===31 && d1===30) d2=30;
-  let totalDays=(y2-y1)*360+(m2-m1)*30+(d2-d1)-1;
+  let totalDays=(y2-y1)*360+(m2-m1)*30+(d2-d1); // ✅ now includes end date
   if (totalDays<0) return document.getElementById("dayResult").innerText="⚠️ End date must be after start date.";
-  document.getElementById("dayResult").innerText=`📅 Total Days (30-day months, excl. end): ${totalDays}`;
+  document.getElementById("dayResult").innerText=`📅 Total Days (30-day months, incl. end): ${totalDays}`;
 }
 
 function calculateEMI() {
