@@ -28,6 +28,14 @@
     .sub-tabs button { flex:1; background:#eee; color:#333; border:none; padding:10px; font-weight:bold; cursor:pointer; border-radius:5px; }
     .sub-tabs button.active { background: var(--primary); color: var(--light); }
     canvas { margin-top: 20px; }
+
+    /* Calculator styles */
+    #calcDisplay { width: 100%; padding: 15px; font-size: 1.2rem; text-align: right; margin-bottom: 15px; border: 2px solid #ccc; border-radius: 6px; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .calc-grid button { padding: 15px; font-size: 1.1rem; border: none; border-radius: 6px; cursor: pointer; background: #0077cc; font-weight: bold; }
+    .calc-grid button:hover { background: #0077cc; }
+    .calc-grid .equals { background: var(--primary); color: var(--light); grid-column: span 2; }
+    .calc-grid .clear { background: #dc3545; color: #fff; }
   </style>
 </head>
 <body>
@@ -37,6 +45,7 @@
   <button onclick="showTool('dayTool')">30-Day Diff</button>
   <button onclick="showTool('emiTool')">EMI</button>
   <button onclick="showTool('mutualTool')">Mutual Fund</button>
+  <button onclick="showTool('calcTool')">Calculator</button>
 </header>
 
 <!-- Compound Interest Calculator -->
@@ -109,6 +118,71 @@
   </div>
 </div>
 
+<!-- Calculator Tool -->
+<div id="calcTool" class="tool">
+  <h2>Calculator</h2>
+  <input type="text" id="calcDisplay" readonly>
+  <div class="calc-grid">
+    <button onclick="pressCalc('7')">7</button>
+    <button onclick="pressCalc('8')">8</button>
+    <button onclick="pressCalc('9')">9</button>
+    <button onclick="pressCalc('/')">÷</button>
+    <button onclick="pressCalc('4')">4</button>
+    <button onclick="pressCalc('5')">5</button>
+    <button onclick="pressCalc('6')">6</button>
+    <button onclick="pressCalc('*')">×</button>
+    <button onclick="pressCalc('1')">1</button>
+    <button onclick="pressCalc('2')">2</button>
+    <button onclick="pressCalc('3')">3</button>
+    <button onclick="pressCalc('-')">−</button>
+    <button onclick="pressCalc('0')">0</button>
+    <button onclick="pressCalc('.')">.</button>
+    <button class="equals" onclick="calculateCalc()">=</button>
+    <button onclick="pressCalc('+')">+</button>
+    <button class="clear" onclick="clearCalc()">C</button>
+    <button onclick="backspaceCalc()">⌫</button>
+  </div>
+</div>
+
+<script>
+/* Calculator functions */
+function pressCalc(val) {
+  document.getElementById("calcDisplay").value += val;
+}
+function clearCalc() {
+  document.getElementById("calcDisplay").value = "";
+}
+function backspaceCalc() {
+  let display = document.getElementById("calcDisplay");
+  display.value = display.value.slice(0, -1);
+}
+function calculateCalc() {
+  try {
+    document.getElementById("calcDisplay").value = eval(document.getElementById("calcDisplay").value);
+  } catch {
+    document.getElementById("calcDisplay").value = "Error";
+  }
+}
+
+/* Keyboard / Numpad Support */
+document.addEventListener("keydown", function(e) {
+  const allowedKeys = "0123456789+-*/.";
+  const display = document.getElementById("calcDisplay");
+
+  if (allowedKeys.includes(e.key)) {
+    display.value += e.key;
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    calculateCalc();
+  } else if (e.key === "Backspace") {
+    backspaceCalc();
+  } else if (e.key === "Escape") {
+    clearCalc();
+  }
+});
+</script>
+
+
 <script>
 let sipChartInstance=null, lumpChartInstance=null;
 
@@ -139,7 +213,7 @@ function calculate30DayDiff() {
   let d2=+document.getElementById("endDay").value,m2=+document.getElementById("endMonth").value,y2=+document.getElementById("endYear").value;
   if ([d1,m1,y1,d2,m2,y2].some(isNaN)) return document.getElementById("dayResult").innerText="⚠️ Enter valid dates!";
   if (d1===31) d1=30; if (d2===31 && d1===30) d2=30;
-  let totalDays=(y2-y1)*360+(m2-m1)*30+(d2-d1); // ✅ now includes end date
+  let totalDays=(y2-y1)*360+(m2-m1)*30+(d2-d1);
   if (totalDays<0) return document.getElementById("dayResult").innerText="⚠️ End date must be after start date.";
   document.getElementById("dayResult").innerText=`📅 Total Days (30-day months, incl. end): ${totalDays}`;
 }
@@ -200,6 +274,21 @@ function calculateLumpsum() {
     ]},
     options:{ responsive:true, plugins:{legend:{position:'top'}} }
   });
+}
+
+/* Calculator functions */
+function pressCalc(val) {
+  document.getElementById("calcDisplay").value += val;
+}
+function clearCalc() {
+  document.getElementById("calcDisplay").value = "";
+}
+function calculateCalc() {
+  try {
+    document.getElementById("calcDisplay").value = eval(document.getElementById("calcDisplay").value);
+  } catch {
+    document.getElementById("calcDisplay").value = "Error";
+  }
 }
 
 showTool('compoundTool');
